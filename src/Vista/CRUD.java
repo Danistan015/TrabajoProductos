@@ -129,6 +129,11 @@ public class CRUD extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        producto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                productoMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(producto);
 
         btnBuscar.setFont(new java.awt.Font("Poppins Medium", 1, 14)); // NOI18N
@@ -300,7 +305,7 @@ public class CRUD extends javax.swing.JFrame {
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         // TODO add your handling code here:
-        String campo = txtCodigo.getText();
+       String campo = txtCodigo.getText();
         String where = "";
         if (!"".equals(campo)) {
             where = " WHERE Id = '" + campo + "'";
@@ -315,8 +320,8 @@ public class CRUD extends javax.swing.JFrame {
             Connection con = conn.getConexion();
 
             String sql = "SELECT * FROM productos" + where;
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
+            ps = con.prepareStatement(sql);//consulta de la base de datos
+            rs = ps.executeQuery();// resultado de la consulta
             ResultSetMetaData rsMd = rs.getMetaData();
             int cantidadColumnas = rsMd.getColumnCount();
 
@@ -338,15 +343,11 @@ public class CRUD extends javax.swing.JFrame {
                 }
                 modelo.addRow(filas);
 
-                // Llena los campos de texto automáticamente con los datos de la primera fila
-                txtNombre.setText(rs.getString("Nombre"));
-                txtDistrubidor.setText(rs.getString("Distribuidor"));
-                txtCategoria.setText(rs.getString("Categoria"));
-                txtPrecio.setText(rs.getString("Precio"));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, ex);
         }
+
 
     }//GEN-LAST:event_btnBuscarActionPerformed
 
@@ -376,6 +377,7 @@ public class CRUD extends javax.swing.JFrame {
             fila[4] = txtPrecio.getText();
             modelo.addRow(fila);
 
+            limpiarCampos();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al guardar");
         }
@@ -416,7 +418,7 @@ public class CRUD extends javax.swing.JFrame {
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         // TODO add your handling code here:
-        PreparedStatement ps = null;
+         PreparedStatement ps = null;
         try {
 
             Conexion_db objCon = new Conexion_db();
@@ -438,6 +440,17 @@ public class CRUD extends javax.swing.JFrame {
             System.out.println(ex.toString());
         }
     }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void productoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productoMouseClicked
+        // TODO add your handling code here:
+        int fila = producto.getSelectedRow();
+
+        txtCodigo.setText(producto.getValueAt(fila, 0).toString());
+        txtNombre.setText(producto.getValueAt(fila, 1).toString());
+        txtDistrubidor.setText(producto.getValueAt(fila, 2).toString());
+        txtCategoria.setText(producto.getValueAt(fila, 3).toString());
+        txtPrecio.setText(producto.getValueAt(fila, 4).toString());
+    }//GEN-LAST:event_productoMouseClicked
 
     private void limpiarCampos() {
         txtCategoria.setText("");
