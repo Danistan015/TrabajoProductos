@@ -305,81 +305,99 @@ public class CRUD extends javax.swing.JFrame {
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         // TODO add your handling code here:
-       String campo = txtCodigo.getText();
+        String campo = txtCodigo.getText();
         String where = "";
         if (!"".equals(campo)) {
             where = " WHERE Id = '" + campo + "'";
         }
+        if (txtCodigo.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "LLene los campos");
 
-        try {
-            DefaultTableModel modelo = new DefaultTableModel();
-            producto.setModel(modelo);
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-            Conexion_db conn = new Conexion_db();
-            Connection con = conn.getConexion();
+        } else {
 
-            String sql = "SELECT * FROM productos" + where;
-            ps = con.prepareStatement(sql);//consulta de la base de datos
-            rs = ps.executeQuery();// resultado de la consulta
-            ResultSetMetaData rsMd = rs.getMetaData();
-            int cantidadColumnas = rsMd.getColumnCount();
+            try {
+                DefaultTableModel modelo = new DefaultTableModel();
+                producto.setModel(modelo);
+                PreparedStatement ps = null;
+                ResultSet rs = null;
+                Conexion_db conn = new Conexion_db();
+                Connection con = conn.getConexion();
 
-            modelo.addColumn("Id");
-            modelo.addColumn("Nombre");
-            modelo.addColumn("Distribuidor");
-            modelo.addColumn("Categoria");
-            modelo.addColumn("Precio");
+                String sql = "SELECT * FROM productos" + where;
+                ps = con.prepareStatement(sql);//consulta de la base de datos
+                rs = ps.executeQuery();// resultado de la consulta
+                ResultSetMetaData rsMd = rs.getMetaData();
+                int cantidadColumnas = rsMd.getColumnCount();
 
-            int[] anchos = {120, 170, 170, 170, 150};
-            for (int i = 0; i < modelo.getColumnCount(); i++) {
-                producto.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
-            }
+                modelo.addColumn("Id");
+                modelo.addColumn("Nombre");
+                modelo.addColumn("Distribuidor");
+                modelo.addColumn("Categoria");
+                modelo.addColumn("Precio");
 
-            while (rs.next()) {
-                Object[] filas = new Object[cantidadColumnas];
-                for (int i = 0; i < cantidadColumnas; i++) {
-                    filas[i] = rs.getObject(i + 1);
+                int[] anchos = {120, 170, 170, 170, 150};
+                for (int i = 0; i < modelo.getColumnCount(); i++) {
+                    producto.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
                 }
-                modelo.addRow(filas);
 
+                while (rs.next()) {
+                    Object[] filas = new Object[cantidadColumnas];
+                    for (int i = 0; i < cantidadColumnas; i++) {
+                        filas[i] = rs.getObject(i + 1);
+                    }
+                    modelo.addRow(filas);
+
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, ex);
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex);
         }
-
 
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnInsertarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertarActionPerformed
         // TODO add your handling code here:
         PreparedStatement ps = null;
-        try {
+         if (!validarletras(txtNombre.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo las letras son validas");
+        } else if (!validarNumero(txtPrecio.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo los numeros son validos");
+        } else if (!validarletras(txtCategoria.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo las letras son validas");
 
-            Conexion_db obConexion_db = new Conexion_db();
-            Connection conn = obConexion_db.getConexion();
-            ps = conn.prepareStatement("INSERT INTO productos (Id,Nombre,Distribuidor,Categoria,Precio) VALUES (?,?,?,?,?)");
-            ps.setString(1, txtCodigo.getText());
-            ps.setString(2, txtNombre.getText());
-            ps.setString(3, txtDistrubidor.getText());
-            ps.setString(4, txtCategoria.getText());
-            ps.setString(5, txtPrecio.getText());
+        } else if (!validarletras(txtDistrubidor.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo las letras son validas");
 
-            ps.execute();
+        } else if (txtCodigo.getText().isEmpty() || txtNombre.getText().isEmpty() || txtCategoria.getText().isEmpty() || txtDistrubidor.getText().isEmpty() || txtPrecio.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "LLene los campos");
+        } else {
+            try {
 
-            JOptionPane.showMessageDialog(null, "Producto guardado");
+                Conexion_db obConexion_db = new Conexion_db();
+                Connection conn = obConexion_db.getConexion();
+                ps = conn.prepareStatement("INSERT INTO productos (Id,Nombre,Distribuidor,Categoria,Precio) VALUES (?,?,?,?,?)");
+                ps.setString(1, txtCodigo.getText());
+                ps.setString(2, txtNombre.getText());
+                ps.setString(3, txtDistrubidor.getText());
+                ps.setString(4, txtCategoria.getText());
+                ps.setString(5, txtPrecio.getText());
 
-            Object[] fila = new Object[5];
-            fila[0] = txtCodigo.getText();
-            fila[1] = txtNombre.getText();
-            fila[2] = txtDistrubidor.getText();
-            fila[3] = txtCategoria.getText();
-            fila[4] = txtPrecio.getText();
-            modelo.addRow(fila);
+                ps.execute();
 
-            limpiarCampos();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar");
+                JOptionPane.showMessageDialog(null, "Producto guardado");
+
+                Object[] fila = new Object[5];
+                fila[0] = txtCodigo.getText();
+                fila[1] = txtNombre.getText();
+                fila[2] = txtDistrubidor.getText();
+                fila[3] = txtCategoria.getText();
+                fila[4] = txtPrecio.getText();
+                modelo.addRow(fila);
+
+                limpiarCampos();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Error al guardar");
+            }
         }
     }//GEN-LAST:event_btnInsertarActionPerformed
 
@@ -387,58 +405,78 @@ public class CRUD extends javax.swing.JFrame {
         // TODO add your handling code here:
         int fila = producto.getSelectedRow();
         PreparedStatement ps = null;
+         if (!validarletras(txtNombre.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo las letras son validas");
+        } else if (!validarNumero(txtPrecio.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo los numeros son validos");
+        } else if (!validarletras(txtCategoria.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo las letras son validas");
 
-        try {
+        } else if (!validarletras(txtDistrubidor.getText().trim())) {
+            JOptionPane.showMessageDialog(rootPane, "Solo las letras son validas");
 
-            Conexion_db obConexion_db = new Conexion_db();
-            Connection conn = obConexion_db.getConexion();
-            ps = conn.prepareStatement("UPDATE  productos SET nombre=?,distribuidor=?,categoria=?,precio=? WHERE Id=?");
+        } else if (txtCodigo.getText().isEmpty() || txtNombre.getText().isEmpty() || txtCategoria.getText().isEmpty() || txtDistrubidor.getText().isEmpty() || txtPrecio.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "LLene los campos");
+        } else {
 
-            ps.setString(1, txtNombre.getText());
-            ps.setString(2, txtDistrubidor.getText());
-            ps.setString(3, txtCategoria.getText());
-            ps.setString(4, txtPrecio.getText());
-            ps.setString(5, txtCodigo.getText());
+            try {
 
-            ps.execute();
+                Conexion_db obConexion_db = new Conexion_db();
+                Connection conn = obConexion_db.getConexion();
+                ps = conn.prepareStatement("UPDATE  productos SET nombre=?,distribuidor=?,categoria=?,precio=? WHERE Id=?");
 
-            JOptionPane.showMessageDialog(null, "Producto modificado");
-            producto.setValueAt(txtCodigo.getText(), fila, 0);
-            producto.setValueAt(txtNombre.getText(), fila, 1);
-            producto.setValueAt(txtDistrubidor.getText(), fila, 2);
-            producto.setValueAt(txtCategoria.getText(), fila, 3);
-            producto.setValueAt(txtPrecio.getText(), fila, 4);
+                ps.setString(1, txtNombre.getText());
+                ps.setString(2, txtDistrubidor.getText());
+                ps.setString(3, txtCategoria.getText());
+                ps.setString(4, txtPrecio.getText());
+                ps.setString(5, txtCodigo.getText());
 
-            limpiarCampos();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al modificar");
+                ps.execute();
 
+                JOptionPane.showMessageDialog(null, "Producto modificado");
+                producto.setValueAt(txtCodigo.getText(), fila, 0);
+                producto.setValueAt(txtNombre.getText(), fila, 1);
+                producto.setValueAt(txtDistrubidor.getText(), fila, 2);
+                producto.setValueAt(txtCategoria.getText(), fila, 3);
+                producto.setValueAt(txtPrecio.getText(), fila, 4);
+
+                limpiarCampos();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Error al modificar");
+
+            }
         }
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         // TODO add your handling code here:
-         PreparedStatement ps = null;
-        try {
+        PreparedStatement ps = null;
+       if (txtCodigo.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "LLene los campos");
 
-            Conexion_db objCon = new Conexion_db();
-            Connection conn = objCon.getConexion();
+        } else {
+            try {
 
-            int fila = producto.getSelectedRow();
-            String codigo = producto.getValueAt(fila, 0).toString();
+                Conexion_db objCon = new Conexion_db();
+                Connection conn = objCon.getConexion();
 
-            ps = conn.prepareStatement("DELETE FROM productos WHERE Id=?");
-            ps.setString(1, codigo);
-            ps.execute();
+                int fila = producto.getSelectedRow();
+                String codigo = producto.getValueAt(fila, 0).toString();
 
-            modelo.removeRow(fila);
-            JOptionPane.showMessageDialog(null, "Producto Eliminado");
-            limpiarCampos();
+                ps = conn.prepareStatement("DELETE FROM productos WHERE Id=?");
+                ps.setString(1, codigo);
+                ps.execute();
 
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al Eliminar Producto");
-            System.out.println(ex.toString());
+                modelo.removeRow(fila);
+                JOptionPane.showMessageDialog(null, "Producto Eliminado");
+                limpiarCampos();
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Error al Eliminar Producto");
+                System.out.println(ex.toString());
+            }
         }
+
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void productoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productoMouseClicked
@@ -459,6 +497,14 @@ public class CRUD extends javax.swing.JFrame {
         txtNombre.setText("");
         txtPrecio.setText("");
 
+    }
+
+    public static boolean validarNumero(String datos) {
+        return datos.matches("[0-9]*");
+    }
+
+    public static boolean validarletras(String datos) {
+        return datos.matches("[a-zA-Z]*");
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
